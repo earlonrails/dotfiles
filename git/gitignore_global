@@ -40,4 +40,5 @@ Thumbs.db
 .tool-versions
 .python-version
 .vscode/
+.devcontainer/
 

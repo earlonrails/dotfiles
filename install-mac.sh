@@ -13,6 +13,6 @@ brew bundle
 
 # Set macOS preferences
 # We will run this last because this will reload the shell
-if [ "$(uname)" == "Darwin" ]; then
+if [ "$(uname)" = "Darwin" ]; then
   source .macos
 fi
