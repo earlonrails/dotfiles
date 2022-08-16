@@ -85,23 +85,6 @@ belp() {
   fi
 }
 
-cutter() {
-  local cookbook_name=$1
-  local host=$2
-  scp -r ${HOME}/code/chef/cookbooks/$cookbook_name $host:/tmp/${cookbook_name}/
-  scp -r ${HOME}/code/chef/roles/${cookbook_name}.rb $host:/tmp/${cookbook_name}.rb
-  ssh $host "sudo -u root mv /tmp/${cookbook_name} /usr/local/chef-config/cookbooks/ && sudo -u root mv /tmp/${cookbook_name}.rb /usr/local/chef-config/roles/"
-}
-
-resetsoft() {
-  local plist=1
-  if [ -z "${1}" ]; then
-    plist=$1
-  fi
-
-  git reset --soft HEAD~$plist
-}
-
 #locate = find
 spot() {
   local where=${2:-.}
@@ -151,27 +134,9 @@ alias bz=$BZIP_BIN
 tarb() {
   tar -cf "$1".tbz --use-compress-prog=$BZIP_BIN "$1"
 }
+
 untarb() {
   $BZIP_BIN -dc "$1" | tar x --exclude="._*"
-}
-
-# recolor
-recolor(){
-  osascript -e 'run script (POSIX file "'$HOME'/Documents/iterm_random_colors.scpt")'
-}
-
-# list running launchctl programs
-launch-list(){
-  ruby $HOME/launch-list.rb "$@"
-}
-
-# splat will make many terminal tabs with selected hosts connecting
-splat() {
-  if [[ $TERM_PROGRAM = iTerm.app ]];then
-    ruby $HOME/Documents/splat.rb "$@"
-  else
-    echo "Must be using iTerm for that function!"
-  fi
 }
 
 # git branch cleaner
@@ -329,11 +294,6 @@ wgif() {
   wget -O $HOME/Downloads/gifs/$name.gif $1
 }
 
-squeek() {
-  sudo modprobe -r usbhid && sudo modprobe -r psmouse
-  sudo modprobe usbhid && sudo modprobe psmouse
-}
-
 kifi() {
   sudo pkill networkd
   sudo ifconfig en0 down
@@ -341,25 +301,6 @@ kifi() {
   ifconfig -u en0
   sudo ipconfig set en0 DHCP
 }
-
-# export GIT_SSH="$HOME/dynamic_git_command.sh"
-# swapgitmail() {
-#   [ -n "$MAIN_GIT_EMAIL" ] || echo "MAIN_GIT_EMAIL not set"
-#   [ -n "$ALT_GIT_EMAIL" ] || echo "ALT_GIT_EMAIL not set"
-#   local email=$(git config --global user.email)
-#   if [ "$email" = "$MAIN_GIT_EMAIL" ];then
-#     git config --global user.email $ALT_GIT_EMAIL
-#     echo "$(git config --global user.email)"
-#   else
-#     git config --global user.email $MAIN_GIT_EMAIL
-#     echo "$(git config --global user.email)"
-#   fi
-# }
-
-# # Iterm colors!!!!
-# if [[ $TERM_PROGRAM = iTerm.app ]]; then
-#   osascript -e 'run script (POSIX file "'$HOME'/Documents/iterm_random_colors.scpt")'
-# fi
 
 [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 [[ -s "$HOME/.git_prompt" ]] && . "$HOME/.git_prompt"
