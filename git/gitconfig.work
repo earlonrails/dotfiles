@@ -22,3 +22,5 @@
 [rebase]
   autosquash = true
   autostash = true
+[mergetool]
+	keepBackup = false
