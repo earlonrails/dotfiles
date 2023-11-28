@@ -14,6 +14,7 @@ fi
 
 ln -s $HOME/.dotfiles/git/gitignore_global $HOME/.gitignore_global || echo ".gitignore_global exists"
 ln -s $HOME/.dotfiles/git/git-hooks $HOME/.git-hooks || echo ".git-hooks exists"
+ln -s $HOME/.dotfiles/system/zshrc $HOME/.zshrc || echo ".zshrc exists"
 ln -s $HOME/.dotfiles/fish $HOME/.config/fish || echo "fish config exists"
 ln -s $HOME/.dotfiles/system/bash_profile $HOME/.bash_profile || echo ".bash_profile exists"
 ln -s $HOME/.dotfiles/ruby/irbrc $HOME/.irbrc || echo ".irbrc exists"

@@ -1,0 +1,464 @@
+#!/usr/bin/env zsh
+
+# ls shortcuts
+alias l='\ls'
+alias ll='\ls -lAh'
+alias la='\ls -a'
+alias ls='\ls -al'
+
+# tmux
+alias tmux='TERM=screen-256color-bce tmux'
+alias tnew='tmux new -s'
+alias tlist='tmux ls'
+alias tat='tmux attach -t'
+
+# git shortcuts
+alias ga='git add .'
+alias gc='git commit -m'
+alias gco='git checkout'
+alias gull='git pull origin master'
+alias gup='git checkout master && git pull origin master'
+alias gs='git status -sb'
+alias got='git'
+alias gut='git'
+alias glog='git log --oneline --decorate'
+alias lsg='git tag -l [0-9]*'
+alias commits='git shortlog -s -n'
+
+alias mem='sudo htop --sort-key PERCENT_MEM'
+alias grep="GREP_COLOR='31' grep -in --color=auto 2>/dev/null"
+alias bup='source ~/.bash_profile'
+alias ttop='top -U $USER'
+alias bedit='code ~/.bash_profile'
+alias hosts='sudo code /etc/hosts'
+alias doc='docker'
+alias dc='docker-compose'
+alias deef='docker-compose stop && docker-compose rm -svf && docker-compose up --build'
+alias drmi='docker rmi -f $(docker images -f "dangling=true" -q)'
+alias dvol='docker volume rm $(docker volume ls -qf dangling=true)'
+alias dclean='docker rmi -f $(docker images -f "dangling=true" -q); docker volume rm $(docker volume ls -qf dangling=true)'
+alias dprune='docker system prune -a'
+alias dcon='docker container prune --filter "until=12h"'
+
+# check internet connection
+alias pingoo='ping -c 3 www.google.com'
+
+if [ "$(uname)" != "Darwin" ]; then
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
+fi
+
+# Load private stuff - keys and such
+[[ -s "$HOME/.private_profile" ]] && source $HOME/.private_profile
+
+gush() {
+  git push origin $(git rev-parse --abbrev-ref HEAD)
+}
+
+# git pull origin current branch
+gl() {
+  git pull origin $(git rev-parse --abbrev-ref HEAD)
+}
+
+gisq() {
+  local current_branch=$(git rev-parse --abbrev-ref HEAD)
+  local old_branch=gisq-old-branch
+  git branch -m $old_branch
+  git checkout master && git pull origin master
+  git checkout -b $current_branch
+  git merge --squash $old_branch
+  git branch -D $old_branch
+}
+
+dkill() {
+  local docker_hex=$(docker ps -aqf "name=${1}")
+  docker stop $docker_hex && docker rm $docker_hex
+}
+
+# bash help
+belp() {
+  if [ "$#" -gt 1 ]; then
+    local search=${*: -1}
+    grep "${@: 0:$#}" $search $HOME/.bash_profile
+  else
+    grep $1 $HOME/.bash_profile
+  fi
+}
+
+randHex() {
+  local size=${1:-6}
+  local doubled=$(( 2*size ))
+  hexdump -vn$doubled -e'4/4 "%08X" 1 "\n"' /dev/urandom
+}
+
+#locate = find
+spot() {
+  local where=${2:-.}
+  find $where -name $1 -print
+}
+
+#launchctl load - start a process
+load() {
+  local plist=$(find ${HOME}/Library/LaunchAgents -name "*${1}*" | head -1)
+  launchctl load $plist
+}
+
+#launchctl unload - stop a running process
+unload() {
+  local plist=$(find ${HOME}/Library/LaunchAgents -name "*${1}*" | head -1)
+  launchctl unload $plist
+}
+
+# git clone and cd into directory
+clone() {
+  git clone $1 \
+  && cd `echo $1 | sed -n -e 's/^.*\/\([^.]*\)\(.git\)*/\1/p'` \
+  && git branch --set-upstream-to=origin/$(git rev-parse --abbrev-ref HEAD) $(git rev-parse --abbrev-ref HEAD)
+}
+
+backupToUsb() {
+  local directory="/Volumes/BACKUPUSB"
+  local machine=$(uname)
+  if [ -d "$directory" ]; then
+    tar -cvpzf --exclude='.git' --exclude='*.log' $directory/$machine-Documents.tar.gz $HOME/Documents
+    tar -cvpzf --exclude='.git' --exclude='*.log' $directory/$machine-code.tar.gz $HOME/code
+    tar -cvpzf --exclude='.git' --exclude='*.log' $directory/$machine-Downloads.tar.gz $HOME/Downloads
+    tar -cvpzf --exclude='.git' --exclude='*.log' $directory/$machine-Work.tar.gz $HOME/Work
+  else
+    echo "$directory not found"
+  fi
+}
+
+# Check to see if pbzip2 is already on path; if so, set BZIP_BIN appropriately
+type -P pbzip2 &>/dev/null && export BZIP_BIN="pbzip2"
+# Otherwise, default to standard bzip2 binary
+if [ -z $BZIP_BIN ]; then
+  export BZIP_BIN="bzip2"
+fi
+alias bz=$BZIP_BIN
+
+tarb() {
+  tar -cf "$1".tbz --use-compress-prog=$BZIP_BIN "$1"
+}
+
+untarb() {
+  $BZIP_BIN -dc "$1" | tar x --exclude="._*"
+}
+
+# git branch cleaner
+# clean_branches regex_matching_branch_names [test]
+clean_branches() {
+  if [[ $# -ne 2 ]];then
+    git branch  | cut -c3- | egrep $1 | xargs git branch -d
+  else
+    git branch  | cut -c3- | egrep $1
+  fi
+}
+
+merged_branches() {
+  local current_branch=$(git rev-parse --abbrev-ref HEAD)
+  for branch in $(git branch --merged | cut -c3-)
+    do
+      echo "Branch $branch is already merged into $current_branch."
+      echo "Would you like to delete it? [Y]es/[N]o "
+      read REPLY
+      if [[ $REPLY =~ ^[Yy] ]]; then
+        git branch -d $branch
+      fi
+  done
+}
+
+clean_remote_branches() {
+  # old clean
+  # if [[ $# -ne 2 ]];then
+  #   matching_branches=$(git branch -r | cut -c3- | egrep $1)
+  #   read remote branch <<<$(IFS="/"; echo $matching_branches)
+  #   git push $remote ":$branch"
+  # else
+  #   git branch -r | cut -c3- | egrep $1
+  # fi
+
+  git branch -r --merged origin/master \
+    | awk -F/ '/^\s*origin/ {if (!match($0, /origin\/master/)) {sub("^\\s*origin/", ""); print}}' \
+    | xargs -rpn1 git push origin --delete
+}
+
+# dl is directory list
+dl(){
+  ls -d $1 */
+}
+
+# download the source to a files of a host
+# getsrc http://www.cnn.com/
+getsrc() {
+  wget $1 -O - 2> /dev/null
+}
+
+# wfull www.cnn.com/full cnn.com
+wfull() {
+  wget \
+    --recursive \
+    --no-clobber \
+    --page-requisites \
+    --html-extension \
+    --convert-links \
+    --restrict-file-names=windows \
+    --domains $2 \
+    --no-parent \
+      $1
+}
+
+# hello does a loop and says a default saying infinately or a custom saying
+hello() {
+  SAYTHIS="hello... my name is inigo montoya. You killed my father prepare to die"
+  if [[ $1 ]]; then
+    SAYTHIS=$1
+  fi
+  while [ true ]
+  do
+    say "$SAYTHIS"
+  done
+}
+
+# take a bash script and turn it into a Mac OSX app
+appify() {
+  APPNAME=${2:-$(basename "$1" ".sh")}
+  DIR="$APPNAME.app/Contents/MacOS"
+  if [ -a "$APPNAME.app" ]; then
+    echo "$PWD/$APPNAME.app already exists :("
+  fi
+  if [[ $APPNAME == '' || $DIR == '' ]]; then
+    echo "appify requires two parameters bash script and app name"
+    echo "Usage : appify myscript.sh myapp"
+  else
+    mkdir -p "$DIR"
+    cp "$1" "$DIR/$APPNAME"
+    chmod +x "$DIR/$APPNAME"
+    echo "$PWD/$APPNAME.app"
+  fi
+}
+
+# scans for ips in the network given by the first 3 octets
+# scannc 192.168.2 [lookup]
+scannc() {
+  range=$1
+  lookup=$2
+  for ip in $(eval echo $range.{1..255})
+    do
+    nc -n -z -w 1 $ip 22 > /dev/null
+    if [ $? -eq 0 ]; then
+      output="$ip"
+      [[ $lookup ]] && [ $lookup != "" ] && output="$ip $(nslookup -timeout=1 $ip  || echo '')"
+      echo $output
+    else
+      echo "."
+    fi
+  done
+}
+
+#w/ ping
+scanping() {
+  range=$1
+  lookup=$2
+  for ip in $(eval echo $range.{1..255})
+  do
+    ping -c1 -t 1 $ip > /dev/null
+    if [ $? -eq 0 ]; then
+      output="$ip"
+      [[ $lookup ]] && [ $lookup != "" ] && output="$ip $(nslookup -timeout=1 $ip  || echo '')"
+      echo $output
+    else
+      echo "."
+    fi
+  done
+}
+
+nc_port_scan() {
+  nc -z $1 1-9999
+}
+
+# add a cron entry without worrying if that entry exists already
+addCron() {
+  entry=$1
+  crontab -l | egrep "$entry" >> /dev/null
+  if [ $? -ne 0 ]; then
+    crontab -l > tmp_crontab
+    echo "$entry" >> tmp_crontab
+    crontab tmp_crontab
+    rm tmp_crontab
+  fi
+}
+
+known_cut() {
+  sed -ie ${1}d $HOME/.ssh/known_hosts
+}
+
+aux() {
+  ps aux | grep $1
+}
+
+wgif() {
+  local t=$(date '+%d-%m-%Y-%H-%M-%S')
+  local name=${2:-$t}
+  wget -O $HOME/Downloads/gifs/$name.gif $1
+}
+
+kifi() {
+  sudo pkill networkd
+  sudo ifconfig en0 down
+  sudo ifconfig en0 up
+  ifconfig -u en0
+  sudo ipconfig set en0 DHCP
+}
+
+[[ -s "$HOME/.git_prompt" ]] && . "$HOME/.git_prompt"
+
+# homebrew
+export PATH=/usr/local/bin:/usr/local/sbin:$PATH
+
+# linuxbrew
+if [ -d "/home/linuxbrew" ]; then
+  export PATH='/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin':"$PATH"
+fi
+
+# Don't check mail when opening terminal.
+unset MAILCHECK
+
+export EDITOR='code'
+
+# Set this to false to turn off version control status checking within the prompt for all themes
+export SCM_CHECK=true
+
+# asdf-vm related stuff
+[[ -s "$HOME/.asdf/asdf.sh" ]] && source "$HOME/.asdf/asdf.sh"
+[[ -s "$HOME/.asdf/asdf.sh" ]] && source "$HOME/.asdf/plugins/java/set-java-home.zsh"
+
+export GATLING_HOME=/usr/local/opt/gatling
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+export PATH=${PATH}:$HOME/.local/bin:$HOME/bin
+
+# history size
+export HISTFILESIZE=100000
+export HISTSIZE=100000
+export HISTCONTROL=ignoredups:erasedups
+export BASH_SILENCE_DEPRECATION_WARNING=1
+source "$HOME/.cargo/env"
+
+# flutter sdk
+export FLUTTER_ROOT="$(asdf where flutter)"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set name of the theme to load --- if set to "random", it will
+# load a random theme each time oh-my-zsh is loaded, in which case,
+# to know which specific one was loaded, run: echo $RANDOM_THEME
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
+ZSH_THEME="agnoster" # (this is one of the fancy ones)
+
+# Set list of themes to pick from when loading at random
+# Setting this variable when ZSH_THEME=random will cause zsh to load
+# a theme from this variable instead of looking in $ZSH/themes/
+# If set to an empty array, this variable will have no effect.
+# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+
+# Uncomment the following line to use case-sensitive completion.
+# CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion.
+# Case-sensitive completion must be off. _ and - will be interchangeable.
+# HYPHEN_INSENSITIVE="true"
+
+# Uncomment one of the following lines to change the auto-update behavior
+# zstyle ':omz:update' mode disabled  # disable automatic updates
+# zstyle ':omz:update' mode auto      # update automatically without asking
+# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+
+# Uncomment the following line to change how often to auto-update (in days).
+# zstyle ':omz:update' frequency 13
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# You can also set it to another string to have that shown instead of the default red dots.
+# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# You can set one of the optional three formats:
+# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# or set a custom format using the strftime function format specifications,
+# see 'man strftime' for details.
+# HIST_STAMPS="mm/dd/yyyy"
+
+# Would you like to use another custom folder than $ZSH/custom?
+# ZSH_CUSTOM=/path/to/new-custom-folder
+
+# Which plugins would you like to load?
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  asdf
+  docker
+  docker-compose
+  flutter
+  fzf
+  git
+  golang
+  kubectl
+  node
+  npm
+  python
+  ruby
+  rust
+  terraform
+  vscode
+  web-search
+  yarn
+  z
+  zoxide
+  zsh-interactive-cd
+  zsh-navigation-tools
+)
+
+source $ZSH/oh-my-zsh.sh
+
+prompt_status() {
+  prompt_icon="🐠"
+  if [[ $RETVAL -ne 0 ]]; then
+    prompt_icon="🦈"
+  fi
+
+  [[ -n "$prompt_icon" ]] && prompt_segment black default "$prompt_icon"
+}
+
+prompt_context() {
+  if [[ "$USERNAME" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+    prompt_segment black default "%(!.%{%F{yellow}%}.)%n"
+  fi
+}
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/kevin.krauss/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

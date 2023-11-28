@@ -1,6 +1,6 @@
 [user]
-	email = kevin.krauss@hulu.com
-	name = Kevin Krauss
+  email = kevin.krauss@hulu.com
+  name = Kevin Krauss
 [alias]
   ll = pull origin
   sh = push origin
@@ -8,7 +8,7 @@
   pretty = log --graph --pretty=format:'%Cred%h%Creset %an: %s - %Creset %C(yellow)%d%Creset %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
 [core]
   editor = code --wait
-	excludesFile = /Users/kevin.krauss/.gitignore_global
+  excludesFile = /Users/kevin.krauss/.gitignore_global
   hooksPath = /Users/kevin.krauss/.git-hooks
 [merge]
   tool = vscode
@@ -16,11 +16,13 @@
   cmd = code --wait $MERGED
   keepBackup = false
 [diff]
-  tool = code --wait --diff $LOCAL $REMOTE
+  tool = vscode
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
 [pull]
   rebase = true
 [rebase]
   autosquash = true
   autostash = true
-[mergetool]
-	keepBackup = false
+[init]
+	defaultBranch = main
