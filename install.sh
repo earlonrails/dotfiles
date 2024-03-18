@@ -18,7 +18,6 @@ ln -s $HOME/.dotfiles/system/zshrc $HOME/.zshrc || echo ".zshrc exists"
 ln -s $HOME/.dotfiles/fish $HOME/.config/fish || echo "fish config exists"
 ln -s $HOME/.dotfiles/system/bash_profile $HOME/.bash_profile || echo ".bash_profile exists"
 ln -s $HOME/.dotfiles/ruby/irbrc $HOME/.irbrc || echo ".irbrc exists"
-ln -s $HOME/.dotfiles/Sublime\ Text\ 3/Preferences.sublime-settings $HOME/Library/Application\ Support/Sublime\ Text\ 3/Packages/User/Preferences.sublime-settings || echo "Sublime Preferences exists"
 ln -s $HOME/.dotfiles/iterm/profile $HOME/Library/Preferences/com.googlecode.iterm2.plist || echo "iterm profile exists"
 
 # install bash-it
