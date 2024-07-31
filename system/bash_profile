@@ -302,7 +302,7 @@ kifi() {
   sudo ipconfig set en0 DHCP
 }
 
-[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
 [[ -s "$HOME/.git_prompt" ]] && . "$HOME/.git_prompt"
 
 # Path to the bash it configuration
@@ -346,6 +346,7 @@ source $BASH_IT/bash_it.sh
 # asdf-vm related stuff
 [[ -s "$HOME/.asdf/asdf.sh" ]] && source "$HOME/.asdf/asdf.sh"
 [[ -s "$HOME/.asdf/asdf.sh" ]] && source "$HOME/.asdf/completions/asdf.bash"
+
 setJavaHome() {
   if [[ -d "$HOME/.asdf/plugins/java" ]]; then
     export JAVA_HOME=${HOME}/.asdf/installs/java/$(asdf current java | awk '{print $1}')
@@ -363,4 +364,4 @@ export HISTFILESIZE=100000
 export HISTSIZE=100000
 export HISTCONTROL=ignoredups:erasedups
 export BASH_SILENCE_DEPRECATION_WARNING=1
-export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/Users/kevin.krauss/.asdf/shims:/Users/kevin.krauss/.asdf/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/kevin.krauss/Library/Android/sdk/tools:/Users/kevin.krauss/Library/Android/sdk/platform-tools:/Users/kevin.krauss/.local/bin:/Users/kevin.krauss/bin:/Users/kevin.krauss/Library/Android/sdk/tools:/Users/kevin.krauss/Library/Android/sdk/platform-tools:/Users/kevin.krauss/.local/bin:/Users/kevin.krauss/bin
+export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/Users/kevin.krauss/.asdf/shims:/Users/kevin.krauss/.asdf/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/kevin.krauss/Library/Android/sdk/tools:/Users/kevin.krauss/Library/Android/sdk/platform-tools:/Users/kevin.krauss/.local/bin:/Users/kevin.krauss/bin:/Users/kevin.krauss/Library/Android/sdk/tools:/Users/kevin.krauss/Library/Android/sdk/platform-tools:/Users/kevin.krauss/.local/bin:/Users/kevin.krauss/bin:$GOPATH/bin
