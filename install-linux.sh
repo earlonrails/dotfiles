@@ -1,51 +1,45 @@
 #!/bin/bash
 
-# echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+codename=$(lsb_release -cs)
+brew bundle install --file=./Brewfile.linux
+sudo apt update && sudo apt install -y gimp \
+        meld \
+        steam \
+        vlc \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        software-properties-common \
+        wget \
+        openshot-qt \
+        transmission-gtk
 
-# https://ubuntu.pkgs.org/16.04/ubuntu-universe-amd64/caffeine_2.8.3-3build1_all.deb.html
-
-# http://c7be0123d7efff32860a-a5a4fb8b39b86d00a1eb7d52603ae1d2.r6.cf1.rackcdn.com/vpn-unlimited_4.22-amd64_001_release_STANDALONE.deb
-
-# https://github.com/sqlectron/sqlectron-gui/releases/download/v1.29.0/Sqlectron_1.29.0_amd64.deb
-
-# http://freelinuxtutorials.com/quick-tips-and-tricks/quick-tip-install-fingerprint-scanner-fprint-ubuntu-16-04-linux/
-
-# https://steamcdn-a.akamaihd.net/client/installer/steam.deb
-
-# http://download.virtualbox.org/virtualbox/5.2.12/virtualbox-5.2_5.2.12-122591~Ubuntu~xenial_amd64.deb
-
-sudo apt install -y automake \
-	bash-completion \
-	cmake \
-	coreutils \
-	fish \
-	gnupg \
-	htop \
-	jq \
-	progress \
-	redis \
-	tmux \
-	alfred \
-	android-studio \
-	google-chrome \
-	firefox \
-	gimp \
-	meld \
-	rowanj-gitx \
-	steam \
-	sublime-text \
-	virtualbox \
-	vlc \
-	apt-transport-https \
-  ca-certificates \
-	curl \
-  software-properties-common
-
+# docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository \
-    "deb https://download.docker.com/linux/ubuntu xenial stable"
-sudo apt update -y
+        "deb https://download.docker.com/linux/ubuntu ${codename} stable"
+sudo apt update
 sudo apt install -y docker-ce docker-compose
 sudo gpasswd -a "${USER}" docker
 
+# vscode
+curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - 
+sudo add-apt-repository \
+        "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+sudo apt update
+sudo apt install -y code
 
+# chrome
+curl -O https://packages.cloud.google.com/apt/doc/apt-key.gpg && sudo apt-key add apt-key.gpg
+sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' 
+sudo apt update
+sudo apt install -y google-chrome
+
+# obs
+sudo add-apt-repository ppa:obsproject/obs-studio
+sudo apt install -y obs-studio
+
+# rancher-desktop
+curl -s https://download.opensuse.org/repositories/isv:/Rancher:/dev/deb/Release.key | gpg --dearmor | sudo dd status=none of=/usr/share/keyrings/isv-rancher-dev-archive-keyring.gpg
+sudo apt update
+sudo apt install -y rancher-desktop
