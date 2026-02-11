@@ -9,7 +9,7 @@ if ! [ -x "$(command -v brew)" ]; then
 fi
 
 brew update
-brew bundle --cleanup --no-lock
+brew bundle --cleanup
 
 # Set macOS preferences
 # We will run this last because this will reload the shell
