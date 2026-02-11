@@ -18,7 +18,9 @@ ln -s $HOME/.dotfiles/system/zshrc $HOME/.zshrc || echo ".zshrc exists"
 ln -s $HOME/.dotfiles/fish $HOME/.config/fish || echo "fish config exists"
 ln -s $HOME/.dotfiles/system/bash_profile $HOME/.bash_profile || echo ".bash_profile exists"
 ln -s $HOME/.dotfiles/ruby/irbrc $HOME/.irbrc || echo ".irbrc exists"
-ln -s $HOME/.dotfiles/iterm/profile $HOME/Library/Preferences/com.googlecode.iterm2.plist || echo "iterm profile exists"
+if [ "$(uname)" = "Darwin" ]; then
+  ln -s $HOME/.dotfiles/iterm/profile $HOME/Library/Preferences/com.googlecode.iterm2.plist || echo "iterm profile exists"
+fi
 
 # install bash-it
 # git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it
