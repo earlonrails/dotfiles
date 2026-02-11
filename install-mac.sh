@@ -13,6 +13,6 @@ brew bundle --cleanup
 
 # Set macOS preferences
 # We will run this last because this will reload the shell
-if [ "$(uname)" = "Darwin" ]; then
-  source .macos
-fi
+# if [ "$(uname)" = "Darwin" ]; then
+#   source .macos
+# fi
